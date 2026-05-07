@@ -1,0 +1,30 @@
+# Brainstorming / superpowers session artifacts
+.superpowers/
+
+# Local Claude Code settings (keep shared .claude/settings.json trackable later)
+.claude/settings.local.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.env
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Quarto build output
+_site/
+.quarto/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
