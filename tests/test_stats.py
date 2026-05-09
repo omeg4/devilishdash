@@ -23,9 +23,18 @@ def test_per_60_negative_toi_raises():
 
 
 def test_per_60_dataframe_column():
-    df = pd.DataFrame({"goals": [1, 2, 0], "toi_seconds": [600, 1800, 0]})
+    df = pd.DataFrame(
+        {"goals": [1, 2, 0, 5], "toi_seconds": [600, 1800, 0, 0]}
+    )
     out = stats.per_60_column(df, events_col="goals", toi_col="toi_seconds")
-    # 1/600s = 6/hr ; 2/1800s = 4/hr ; 0/0s = NaN
+    # 1/600s = 6/hr ; 2/1800s = 4/hr ; 0/0s and 5/0s = NaN (mask must fire)
     assert out.iloc[0] == pytest.approx(6.0)
     assert out.iloc[1] == pytest.approx(4.0)
     assert math.isnan(out.iloc[2])
+    assert math.isnan(out.iloc[3])
+
+
+def test_per_60_column_negative_toi_raises():
+    df = pd.DataFrame({"goals": [1, 2], "toi_seconds": [600, -1]})
+    with pytest.raises(ValueError):
+        stats.per_60_column(df, events_col="goals", toi_col="toi_seconds")

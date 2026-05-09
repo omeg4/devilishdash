@@ -23,8 +23,14 @@ def per_60(events: float, toi_seconds: float) -> float:
 
 
 def per_60_column(df: pd.DataFrame, *, events_col: str, toi_col: str) -> pd.Series:
-    """Vectorised version of :func:`per_60` over two DataFrame columns."""
+    """Vectorised version of :func:`per_60` over two DataFrame columns.
+
+    Raises ``ValueError`` if any value in ``toi_col`` is negative, matching
+    :func:`per_60`'s scalar semantics. Rows with ``toi == 0`` return ``NaN``.
+    """
     toi = df[toi_col]
+    if (toi < 0).any():
+        raise ValueError(f"{toi_col} contains negative values")
     rate = df[events_col] * SECONDS_PER_HOUR / toi
     rate = rate.where(toi > 0, other=math.nan)
     return rate
