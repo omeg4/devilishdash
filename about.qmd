@@ -1,0 +1,28 @@
+---
+title: "About"
+---
+
+I'm Matthew Brunetti — senior consultant at a business analytics firm with five
+years of experience across SQL, Snowflake, Tableau, PowerBI, and Python. This
+site documents my work toward a hockey-operations analytics role.
+
+## What I'm working on
+
+- A reproducible NHL data warehouse (DuckDB + public-source ingest).
+- An ongoing analysis of post-injury performance for NHL skaters.
+- Player-evaluation, draft-modeling, and goaltending analyses, in roughly that
+  order over the next year.
+
+## Tools & methods
+
+- **Languages:** Python, SQL.
+- **Data:** DuckDB warehouse, NHL Stats API, MoneyPuck, Natural Stat Trick.
+- **Stats / ML:** regression, mixed-effects models, regularization (ridge/lasso),
+  gradient boosting, calibration, bootstrapping.
+- **Site:** Quarto, GitHub Actions CI, Netlify.
+
+## Contact
+
+- Email: matthew.brunetti28@gmail.com
+- GitHub: [github.com/&lt;your-username&gt;](https://github.com/)
+- Twitter: [@&lt;your-handle&gt;](https://twitter.com/)
