@@ -67,3 +67,31 @@ def test_load_shots_replaces_existing_season(tmp_warehouse: Path, tmp_path: Path
         assert n == 2  # season-replace semantics, not append
     finally:
         con.close()
+
+
+def test_load_shots_does_not_delete_other_seasons(tmp_warehouse: Path, tmp_path: Path):
+    cache = tmp_path / "cache"
+    cache.mkdir()
+
+    csv_2024 = cache / "shots_2024.csv"
+    csv_2024.write_text(SAMPLE_CSV)
+
+    # Build a 2023 fixture by rewriting the season column.
+    csv_2023 = cache / "shots_2023.csv"
+    csv_2023.write_text(SAMPLE_CSV.replace(",2024,", ",2023,"))
+
+    con = data.connect(tmp_warehouse)
+    try:
+        data.ensure_schemas(con)
+        moneypuck_shots.load_shots(con, csv_path=csv_2024, season=2024)
+        moneypuck_shots.load_shots(con, csv_path=csv_2023, season=2023)
+        total = con.execute("SELECT COUNT(*) FROM raw.moneypuck_shots").fetchone()[0]
+        assert total == 4  # 2 from each season; loading 2023 must NOT delete 2024
+        seasons = sorted(
+            r[0] for r in con.execute(
+                "SELECT DISTINCT season FROM raw.moneypuck_shots"
+            ).fetchall()
+        )
+        assert seasons == [2023, 2024]
+    finally:
+        con.close()

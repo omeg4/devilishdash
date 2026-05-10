@@ -57,21 +57,30 @@ def load_shots(
 ) -> int:
     """Replace all rows for ``season`` in raw.moneypuck_shots from ``csv_path``.
 
-    Returns the number of rows inserted.
+    DELETE + INSERT run inside a single transaction so a load failure cannot
+    leave the warehouse with a hollowed-out season.
+
+    Returns the number of rows present for ``season`` after the load.
     """
     con.execute(CREATE_SHOTS_TABLE)
-    con.execute("DELETE FROM raw.moneypuck_shots WHERE season = ?", [season])
-    con.execute(
-        f"""
-        INSERT INTO raw.moneypuck_shots
-          (shot_id, season, game_id, team, shooter_id,
-           x_cord_adjusted, y_cord_adjusted, shot_type, x_goal, goal)
-        SELECT
-          shotID, season, game_id, team, shooterPlayerId,
-          xCordAdjusted, yCordAdjusted, shotType, xGoal, goal
-        FROM read_csv('{csv_path.as_posix()}', header=true)
-        """
-    )
+    con.execute("BEGIN")
+    try:
+        con.execute("DELETE FROM raw.moneypuck_shots WHERE season = ?", [season])
+        con.execute(
+            f"""
+            INSERT INTO raw.moneypuck_shots
+              (shot_id, season, game_id, team, shooter_id,
+               x_cord_adjusted, y_cord_adjusted, shot_type, x_goal, goal)
+            SELECT
+              shotID, season, game_id, team, shooterPlayerId,
+              xCordAdjusted, yCordAdjusted, shotType, xGoal, goal
+            FROM read_csv('{csv_path.as_posix()}', header=true)
+            """
+        )
+        con.execute("COMMIT")
+    except Exception:
+        con.execute("ROLLBACK")
+        raise
     return con.execute(
         "SELECT COUNT(*) FROM raw.moneypuck_shots WHERE season = ?", [season]
     ).fetchone()[0]
