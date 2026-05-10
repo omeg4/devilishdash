@@ -28,3 +28,7 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+# DuckDB local database files
+*.duckdb
+*.duckdb.wal
