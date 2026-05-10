@@ -32,3 +32,6 @@ Thumbs.db
 # DuckDB local database files
 *.duckdb
 *.duckdb.wal
+
+/.quarto/
+**/*.quarto_ipynb
