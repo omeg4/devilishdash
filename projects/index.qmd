@@ -1,0 +1,14 @@
+---
+title: "Projects"
+subtitle: "Long-form analyses with reproducible code."
+listing:
+  contents: "*/index.qmd"
+  type: default
+  sort: "date desc"
+  fields: [date, title, description]
+page-layout: full
+---
+
+The first long-form project — a comparative analysis of NHL post-injury
+performance — is in progress. See [Notes](../notes/index.qmd) for short-form
+work in the meantime.

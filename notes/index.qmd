@@ -1,0 +1,13 @@
+---
+title: "Notes"
+subtitle: "Short-form: reactions, methodology questions, mini-charts."
+listing:
+  contents: "*.qmd"
+  exclude:
+    filename: "index.qmd"
+  type: default
+  sort: "date desc"
+  fields: [date, title, description]
+  feed: true
+page-layout: full
+---
