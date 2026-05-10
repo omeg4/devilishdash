@@ -3,8 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from devilishdash import data
 from data.ingest import nhl_schedule
+from devilishdash import data
 
 SAMPLE_API_RESPONSE = {
     "gameWeek": [
@@ -51,13 +51,9 @@ def test_load_schedule_writes_to_raw_schema(tmp_warehouse: Path):
     try:
         data.ensure_schemas(con)
         with patch.object(nhl_schedule.requests, "get", side_effect=_mock_get):
-            inserted = nhl_schedule.load_schedule(
-                con, week_dates=["2024-10-07"]
-            )
+            inserted = nhl_schedule.load_schedule(con, week_dates=["2024-10-07"])
         assert inserted == 1
-        result = con.execute(
-            "SELECT game_id, home_abbrev FROM raw.schedule"
-        ).fetchall()
+        result = con.execute("SELECT game_id, home_abbrev FROM raw.schedule").fetchall()
         assert result == [(2024020001, "NJD")]
     finally:
         con.close()

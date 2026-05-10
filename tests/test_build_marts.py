@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from devilishdash import data
 from data.ingest import build_marts
+from devilishdash import data
 
 
 def _seed(con):

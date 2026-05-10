@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable
+from collections.abc import Iterable
 
 import duckdb
 import requests
@@ -36,20 +36,22 @@ def fetch_week(date: str) -> list[dict]:
     for day in payload.get("gameWeek", []):
         day_date = day.get("date", "")
         for g in day.get("games", []):
-            rows.append({
-                "game_id": g["id"],
-                "season": g["season"],
-                "game_type": g["gameType"],
-                # Real API puts the date on the day object, not the game object.
-                # Fall back to the day-level date for compatibility.
-                "game_date": g.get("gameDate", day_date),
-                "start_utc": g["startTimeUTC"],
-                "home_team_id": g["homeTeam"]["id"],
-                "home_abbrev": g["homeTeam"]["abbrev"],
-                "away_team_id": g["awayTeam"]["id"],
-                "away_abbrev": g["awayTeam"]["abbrev"],
-                "game_state": g.get("gameState", ""),
-            })
+            rows.append(
+                {
+                    "game_id": g["id"],
+                    "season": g["season"],
+                    "game_type": g["gameType"],
+                    # Real API puts the date on the day object, not the game object.
+                    # Fall back to the day-level date for compatibility.
+                    "game_date": g.get("gameDate", day_date),
+                    "start_utc": g["startTimeUTC"],
+                    "home_team_id": g["homeTeam"]["id"],
+                    "home_abbrev": g["homeTeam"]["abbrev"],
+                    "away_team_id": g["awayTeam"]["id"],
+                    "away_abbrev": g["awayTeam"]["abbrev"],
+                    "game_state": g.get("gameState", ""),
+                }
+            )
     return rows
 
 
@@ -77,10 +79,15 @@ def load_schedule(
                   fetched_at = now()
                 """,
                 [
-                    r["game_id"], r["season"], r["game_type"],
-                    r["game_date"], r["start_utc"],
-                    r["home_team_id"], r["home_abbrev"],
-                    r["away_team_id"], r["away_abbrev"],
+                    r["game_id"],
+                    r["season"],
+                    r["game_type"],
+                    r["game_date"],
+                    r["start_utc"],
+                    r["home_team_id"],
+                    r["home_abbrev"],
+                    r["away_team_id"],
+                    r["away_abbrev"],
                     r["game_state"],
                 ],
             )

@@ -7,8 +7,8 @@ import logging
 import sys
 from pathlib import Path
 
-from devilishdash import data
 from data.ingest import build_marts, moneypuck_shots, nhl_schedule
+from devilishdash import data
 
 logging.basicConfig(
     level=logging.INFO,

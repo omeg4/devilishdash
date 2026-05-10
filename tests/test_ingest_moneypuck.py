@@ -3,8 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from devilishdash import data
 from data.ingest import moneypuck_shots
+from devilishdash import data
 
 SAMPLE_CSV = (
     "shotID,season,game_id,team,shooterPlayerId,xCordAdjusted,yCordAdjusted,"
@@ -42,8 +42,7 @@ def test_load_shots_inserts_rows(tmp_warehouse: Path, tmp_path: Path):
         n = moneypuck_shots.load_shots(con, csv_path=csv_path, season=2024)
         assert n == 2
         rows = con.execute(
-            "SELECT shot_id, season, x_goal, goal "
-            "FROM raw.moneypuck_shots ORDER BY shot_id"
+            "SELECT shot_id, season, x_goal, goal FROM raw.moneypuck_shots ORDER BY shot_id"
         ).fetchall()
         assert rows == [(1001, 2024, 0.082, 0), (1002, 2024, 0.041, 1)]
     finally:
@@ -61,9 +60,9 @@ def test_load_shots_replaces_existing_season(tmp_warehouse: Path, tmp_path: Path
         data.ensure_schemas(con)
         moneypuck_shots.load_shots(con, csv_path=csv_path, season=2024)
         moneypuck_shots.load_shots(con, csv_path=csv_path, season=2024)
-        n = con.execute(
-            "SELECT COUNT(*) FROM raw.moneypuck_shots WHERE season = 2024"
-        ).fetchone()[0]
+        n = con.execute("SELECT COUNT(*) FROM raw.moneypuck_shots WHERE season = 2024").fetchone()[
+            0
+        ]
         assert n == 2  # season-replace semantics, not append
     finally:
         con.close()
@@ -88,9 +87,7 @@ def test_load_shots_does_not_delete_other_seasons(tmp_warehouse: Path, tmp_path:
         total = con.execute("SELECT COUNT(*) FROM raw.moneypuck_shots").fetchone()[0]
         assert total == 4  # 2 from each season; loading 2023 must NOT delete 2024
         seasons = sorted(
-            r[0] for r in con.execute(
-                "SELECT DISTINCT season FROM raw.moneypuck_shots"
-            ).fetchall()
+            r[0] for r in con.execute("SELECT DISTINCT season FROM raw.moneypuck_shots").fetchall()
         )
         assert seasons == [2023, 2024]
     finally:

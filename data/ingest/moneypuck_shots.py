@@ -7,13 +7,9 @@ from pathlib import Path
 import duckdb
 import requests
 
-MONEYPUCK_SHOT_URL = (
-    "https://peter-tanner.com/moneypuck/downloads/shots_{season}.zip"
-)
+MONEYPUCK_SHOT_URL = "https://peter-tanner.com/moneypuck/downloads/shots_{season}.zip"
 # Alternate non-zipped CSV URL (for newer years MoneyPuck has shipped both):
-MONEYPUCK_SHOT_CSV_URL = (
-    "https://peter-tanner.com/moneypuck/downloads/shots_{season}.csv"
-)
+MONEYPUCK_SHOT_CSV_URL = "https://peter-tanner.com/moneypuck/downloads/shots_{season}.csv"
 TIMEOUT = 60
 
 CREATE_SHOTS_TABLE = """
