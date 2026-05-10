@@ -13,5 +13,5 @@ analytics role. This site collects my analyses, methodology notes, and code.
 - [About](about.qmd) — bio, tools, contact.
 
 The site and every chart on it is built from the same DuckDB warehouse, with
-all source code on GitHub. See [the warehouse note](notes/2026-05-XX-warehouse-stack.qmd)
+all source code on GitHub. See [the warehouse note](notes/2026-05-09-warehouse-stack.qmd)
 for how the pipeline works.

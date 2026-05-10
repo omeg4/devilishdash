@@ -1,0 +1,126 @@
+---
+title: "Building a personal NHL data warehouse — the stack and the gotchas"
+description: "How I'm setting up a single-laptop hockey data pipeline with DuckDB, Quarto, and public sources."
+date: "2026-05-09"
+categories: [methodology, data, infra]
+jupyter: devilishdash
+format:
+  html:
+    code-fold: true
+---
+
+## Bottom line
+
+A single DuckDB file, three schemas (`raw` / `clean` / `mart`), idempotent
+ingest scripts for the NHL Stats API and MoneyPuck shot data, all wired into a
+Quarto site that re-renders on every push. Total infrastructure cost: ~$12/year
+for a domain. Total runtime to rebuild from sources: under 5 minutes for two
+seasons of data.
+
+```{python}
+#| label: shots-per-game-hero
+#| fig-cap: "Shots per game by team, latest season — sample chart from the warehouse."
+import duckdb
+import matplotlib.pyplot as plt
+import pandas as pd
+
+from devilishdash import data, viz
+
+viz.set_house_style()
+
+con = data.connect()
+try:
+    df = con.execute("""
+        SELECT team, AVG(shots) AS shots_per_game
+        FROM mart.shots_per_game
+        WHERE season = (SELECT MAX(season) FROM mart.shots_per_game)
+        GROUP BY team
+        ORDER BY shots_per_game DESC
+    """).df()
+except duckdb.CatalogException:
+    # mart.shots_per_game doesn't exist yet — MoneyPuck source is offline.
+    df = pd.DataFrame(columns=["team", "shots_per_game"])
+finally:
+    con.close()
+
+if df.empty:
+    fig, ax = plt.subplots(figsize=(8, 1.2))
+    ax.text(
+        0.5, 0.5,
+        "MoneyPuck source unavailable — chart will populate after the next data refresh.",
+        ha="center", va="center", transform=ax.transAxes,
+        fontsize=11, color=viz.HOUSE_PALETTE["muted"],
+    )
+    ax.axis("off")
+else:
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.barh(df["team"], df["shots_per_game"], color=viz.HOUSE_PALETTE["accent"])
+    ax.invert_yaxis()
+    ax.set_xlabel("Shots per game")
+    ax.set_title("Average shots per game, latest season")
+plt.tight_layout()
+plt.show()
+```
+
+## What I built
+
+A monorepo at `github.com/<user>/devilishdash` containing:
+
+- `devilishdash/` — a Python package with three modules (`data.py`, `viz.py`,
+  `stats.py`) used by every analysis on this site.
+- `data/ingest/` — idempotent scripts that populate `data/warehouse.duckdb`
+  from public sources.
+- `notes/` and `projects/` — Quarto content. (You're reading a `notes/` page.)
+- `Makefile` — single entry point: `make data` rebuilds the warehouse,
+  `make preview` runs the Quarto preview server.
+
+## Why DuckDB
+
+I came from enterprise BI — Snowflake, Tableau, PowerBI. The mental model was
+"a server somewhere, and I write SQL against it." DuckDB collapses that to "a
+file on my laptop." For hockey-data scale (low millions of rows, the largest
+season of MoneyPuck shot data is ~120k rows), it's overkill in performance and
+underkill in operational cost. Sub-second queries; no server to manage; the
+warehouse file lives next to the code that produced it.
+
+## Schema convention
+
+Three schemas, each with one purpose:
+
+| Schema | Purpose | Examples |
+|---|---|---|
+| `raw.*` | Untouched extract — types normalised, columns renamed for readability, but no semantic transforms | `raw.schedule`, `raw.moneypuck_shots` |
+| `clean.*` | Deduped, joined, key-corrected, ready for analysis | (none yet — populated in Phase 1) |
+| `mart.*` | Analysis-ready, one mart per logical question | `mart.shots_per_game` |
+
+Loaders are **idempotent by construction**: schedule rows upsert by `game_id`;
+shot data is replaced per-season. No duplicate-row bugs from rerunning the
+pipeline.
+
+## Three gotchas
+
+**1. The NHL API doesn't return everything in one call.** The `/v1/schedule/{date}`
+endpoint returns one *week* starting at the given date. So a full-season fetch
+means iterating Mondays from October to April. Trivial in code (`season_week_dates`
+in `nhl_schedule.py`), but easy to miss on first read.
+
+**2. MoneyPuck filenames change conventions year to year.** Sometimes the per-
+season file ships as `.zip`, sometimes as `.csv`. The current loader assumes
+`.csv`; the URL helper has both URLs ready and falls back if the first fails.
+Keep an eye on this each October.
+
+**3. Idempotence is not the same as cheapness.** Rerunning ingest is *correct*
+— it produces the same warehouse — but for MoneyPuck it re-downloads ~30 MB
+per season. The runner caches into `data/cache/`; re-runs are seconds, not
+minutes.
+
+## What's next
+
+This pipeline is **Phase 0** of a 9-12 month plan to build a hockey-analytics
+portfolio toward a hockey-ops role. Phase 1 (~8-10 weeks) is a comparative
+analysis of NHL post-injury performance — using the Devils as a case study and
+league-wide as the comparison. The hardest part will be getting clean injury
+data, since the NHL doesn't publish an injury API. More on that soon.
+
+If you spot a bug in the warehouse code, the source is on GitHub (link in the
+nav). Issues and PRs welcome.
