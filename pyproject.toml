@@ -7,7 +7,6 @@ dependencies = [
     "duckdb>=1.1",
     "pandas>=2.2",
     "requests>=2.32",
-    "nhl-api-py>=2.0",
     "matplotlib>=3.9",
     "plotnine>=0.13",
 ]

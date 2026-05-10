@@ -33,5 +33,8 @@ Thumbs.db
 *.duckdb
 *.duckdb.wal
 
+# Local download cache (regenerable from public sources)
+data/cache/
+
 /.quarto/
 **/*.quarto_ipynb

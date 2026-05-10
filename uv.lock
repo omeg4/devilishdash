@@ -516,7 +516,6 @@ source = { editable = "." }
 dependencies = [
     { name = "duckdb" },
     { name = "matplotlib" },
-    { name = "nhl-api-py" },
     { name = "pandas" },
     { name = "plotnine" },
     { name = "requests" },
@@ -537,7 +536,6 @@ requires-dist = [
     { name = "ipykernel", marker = "extra == 'dev'", specifier = ">=6.29" },
     { name = "jupyter", marker = "extra == 'dev'", specifier = ">=1.0" },
     { name = "matplotlib", specifier = ">=3.9" },
-    { name = "nhl-api-py", specifier = ">=2.0" },
     { name = "pandas", specifier = ">=2.2" },
     { name = "plotnine", specifier = ">=0.13" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
@@ -1375,18 +1373,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/83/f8/51569ac65d696c8ecbee95938f89d4abf00f47d58d48f6fbabfe8f0baefe/nest_asyncio-1.6.0.tar.gz", hash = "sha256:6f172d5449aca15afd6c646851f4e31e02c598d553a667e38cafa997cfec55fe", size = 7418, upload-time = "2024-01-21T14:25:19.227Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a0/c4/c2971a3ba4c6103a3d10c4b0f24f461ddc027f0f09763220cf35ca1401b3/nest_asyncio-1.6.0-py3-none-any.whl", hash = "sha256:87af6efd6b5e897c81050477ef65c62e2b2f35d51703cae01aff2905b1852e1c", size = 5195, upload-time = "2024-01-21T14:25:17.223Z" },
-]
-
-[[package]]
-name = "nhl-api-py"
-version = "3.2.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "httpx" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/a7/6d/d506e22b816d683f720d9613faa3584bf7271eecb9844a325df896bead06/nhl_api_py-3.2.3.tar.gz", hash = "sha256:f269b739f6efe980a8ed1b66828e567a0b24ccc2f896ad3174a4705ffb2d1a47", size = 45430, upload-time = "2026-03-16T13:08:11.431Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/3a/76/8d3e8c94f71a88a1c4a7fd33e9c5d5a7b1f443db22695d71b77afa5c6af6/nhl_api_py-3.2.3-py3-none-any.whl", hash = "sha256:dbfeb4a1cd981dd5958010d3b0f1cc2bfdf8ae081c1185e2cb103a397525b459", size = 46386, upload-time = "2026-03-16T13:08:10.099Z" },
 ]
 
 [[package]]
