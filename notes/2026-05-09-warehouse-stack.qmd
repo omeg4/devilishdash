@@ -3,7 +3,6 @@ title: "Building a personal NHL data warehouse — the stack and the gotchas"
 description: "How I'm setting up a single-laptop hockey data pipeline with DuckDB, Quarto, and public sources."
 date: "2026-05-09"
 categories: [methodology, data, infra]
-jupyter: devilishdash
 format:
   html:
     code-fold: true

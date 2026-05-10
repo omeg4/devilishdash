@@ -1,6 +1,10 @@
 project:
   type: website
   output-dir: _site
+  render:
+    - "*.qmd"
+    - "notes/**/*.qmd"
+    - "projects/**/*.qmd"
   resources:
     - "data/warehouse.duckdb"  # excluded; just a marker
 
