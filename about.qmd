@@ -24,5 +24,4 @@ site documents my work toward a hockey-operations analytics role.
 ## Contact
 
 - Email: matthew.brunetti28@gmail.com
-- GitHub: [github.com/&lt;your-username&gt;](https://github.com/)
-- Twitter: [@&lt;your-handle&gt;](https://twitter.com/)
+- GitHub: [github.com/omeg4](https://github.com/omeg4)

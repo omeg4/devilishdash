@@ -63,7 +63,7 @@ plt.show()
 
 ## What I built
 
-A monorepo at `github.com/<user>/devilishdash` containing:
+A monorepo at `github.com/omeg4/devilishdash` containing:
 
 - `devilishdash/` — a Python package with three modules (`data.py`, `viz.py`,
   `stats.py`) used by every analysis on this site.

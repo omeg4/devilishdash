@@ -23,9 +23,9 @@ website:
         text: About
     right:
       - icon: github
-        href: https://github.com/<your-github-username>/devilishdash
-      - icon: twitter
-        href: https://twitter.com/<your-handle>
+        href: https://github.com/omeg4/devilishdash
+  repo-url: https://github.com/omeg4/devilishdash
+  repo-actions: [source, issue]
   page-footer:
     left: "© Matthew Brunetti"
     right: "Built with [Quarto](https://quarto.org)"
