@@ -1,8 +1,8 @@
 # Phase 0 — Completion Report & Handoff
 
-> **Status as of 2026-05-11:** Phase 0 code is shipped (T1–T14 complete, T15 + T16 awaiting your hands). Local site renders cleanly. All tests pass. Repo not yet pushed to GitHub.
+> **Status as of 2026-05-12:** Phase 0 code is shipped (T1–T14 complete). Repo is live at https://github.com/omeg4/devilishdash. Local site renders cleanly. All tests pass. T15 (deploy) is split into two tiers — do Tier 1 now (free, ~15 min), defer Tier 2 (custom domain, $12/yr) until Phase 1 ships. T16 (reading list) is on your own time.
 
-This document captures **everything that was actually built** (which differs in a few places from the plan), the **environment state** on this machine, and the **step-by-step actions you need to take for T15 (Netlify + domain) and T16 (reading list)**.
+This document captures **everything that was actually built** (which differs in a few places from the plan), the **environment state** on this machine, and the **step-by-step actions you need to take for T15 (deployment) and T16 (reading list)**.
 
 For the original design intent see `superpowers/specs/2026-05-07-hockey-analytics-portfolio-design.md`. For the per-task plan see `superpowers/plans/2026-05-07-phase-0-foundation.md`. This file is the *what-we-actually-shipped + what-you-do-next* companion.
 
@@ -109,7 +109,7 @@ The Makefile encodes the Quarto path via `QUARTO_BIN := $(HOME)/.local/share/qua
 
 ## 3. Commit history & what each commit means
 
-22 commits since the plan landed, organized by task. Each `feat(...)` is verbatim spec; each `fix(...)` is a follow-up addressing a real issue surfaced by the two-stage review.
+24+ commits since the plan landed, organized by task. Each `feat(...)` is verbatim spec; each `fix(...)` is a follow-up addressing a real issue surfaced by the two-stage review. The list below covers the substantive work; small follow-ups (this doc, ongoing README updates during Tier 1/2) accumulate after.
 
 ```
 09b3300 chore: replace identity placeholders with omeg4 (and add repo-url for code-tools)
@@ -221,75 +221,61 @@ The plan's URL `https://peter-tanner.com/moneypuck/downloads/shots_{season}.csv`
 
 ---
 
-## 6. T15 — Netlify + domain (your hands)
+## 6. T15 — Deployment (tiered)
 
-These steps require your involvement: external accounts, payment, DNS. Roughly 30–60 minutes of work.
+T15 has three viable end-states. The recommended path is **Tier 1 now → Tier 2 when Phase 1 ships**. Read this whole section before picking — the choice is reversible at any time but it's cheaper to know which path you're on.
 
-### Step 1: Push to GitHub
+| Tier | What you get | Cost | Time | When |
+|---|---|---|---|---|
+| **0** | Local-only development (`make preview`). Repo can be private. No deploy. | $0 | 0 min | Never recommended; you don't validate the deploy pipeline. |
+| **1** | Public Netlify URL like `https://<random>.netlify.app`. Full CI → render → deploy chain working. No custom domain. | $0 | ~15 min | **Now.** Recommended. |
+| **2** | Custom domain (e.g. `mattbrunetti.com`) with HTTPS. | ~$12/yr | +30 min on top of Tier 1 | When Phase 1's Devils injury study is polished and you're ready to share publicly (e.g. on a job application). |
 
-The repo is currently local-only. The `gh` CLI is installed but the saved token is invalid. Re-authenticate:
+The reasoning: Tier 1 is the load-bearing test of T14's GitHub Actions workflow. If you defer all of T15, you're flying blind on whether the deploy pipeline works — and you'll find out the hard way the day before you want to share something. Tier 1 costs nothing and proves the pipeline. Tier 2 is purely a vanity-URL upgrade and adds no engineering value beyond looking professional.
 
-```bash
-gh auth login -h github.com
-```
+### Already done
 
-Pick:
-- Account: GitHub.com
-- Protocol: HTTPS (or SSH if you have keys set up)
-- Auth method: Login with a web browser (paste the device code into the URL it gives you)
+- **Pushed to GitHub** — repo is live at https://github.com/omeg4/devilishdash (public, SSH remote `origin`).
+- **Auth working** — `gh auth status` reports ✓ for `omeg4` with `repo` scope.
+- **Workflow fired automatically** on first push. As expected, it fails at the Netlify deploy step until you complete Tier 1 below.
 
-Then create the public repo and push everything:
+---
 
-```bash
-cd /home/bruno/devilishdash
-gh repo create omeg4/devilishdash --public --source=. --remote=origin --push
-```
+### Tier 1: Free Netlify deploy (do this now, ~15 min)
 
-Verify:
-```bash
-gh repo view --web    # opens the live GitHub repo in your browser
-```
+#### Step 1: Netlify signup + connect repo
 
-You should see all 23 commits, the README, and the Actions tab. The Actions workflow will trigger automatically on this first push — it will install uv, Python, Quarto, render the site, then **fail at the Netlify deploy step** because the secrets don't exist yet. That's the expected state until Step 4 below.
-
-### Step 2: Netlify signup + connect repo
-
-1. Go to https://app.netlify.com/signup. Use the email `matthew.brunetti28@gmail.com`. Sign in via GitHub for the lowest-friction setup.
+1. Go to https://app.netlify.com/signup. Use email `matthew.brunetti28@gmail.com`. Sign in via GitHub for the lowest-friction setup.
 2. Once logged in: **Sites** → **Add new site** → **Import an existing project** → **Deploy with GitHub** → pick `omeg4/devilishdash`.
 3. **Build settings** (when prompted):
    - **Build command:** leave blank. (GitHub Actions runs the build; Netlify just hosts.)
    - **Publish directory:** `_site`
    - **Branch to deploy:** `main`
-4. Click **Deploy site**. Netlify will do a default build to validate the publish dir. Since the build command is blank and `_site/` doesn't exist on a fresh checkout, this first deploy will fail — that's OK; it just registers the site.
+4. Click **Deploy site**. Netlify will attempt a default build; since the build command is blank and `_site/` doesn't exist in the checked-out repo, this first deploy fails — that's OK; it just registers the site so you have a site ID.
 
-### Step 3: Get the auth token + site ID
-
-Two values you need to copy:
+#### Step 2: Get the auth token + site ID
 
 **Auth token (personal access token):**
 1. Netlify top-right **Avatar** → **User settings** → **Applications** → **Personal access tokens**
-2. **New access token** → name it "GitHub Actions deploy"
+2. **New access token** → name it "GitHub Actions deploy". Leave expiration at the default (or "no expiration" if available).
 3. Copy the token immediately — Netlify won't show it again. Treat it like a password.
 
 **Site ID (a.k.a. API ID):**
-1. From Netlify dashboard, click the site you just created
+1. From the Netlify dashboard, click the site you just created.
 2. **Site configuration** → **General** → "Site information"
-3. Copy the **API ID** (it looks like a UUID, e.g. `12345678-90ab-cdef-1234-567890abcdef`)
+3. Copy the **API ID** (UUID format, e.g. `12345678-90ab-cdef-1234-567890abcdef`).
 
-### Step 4: Add the secrets to GitHub
+#### Step 3: Add the secrets to GitHub
 
 ```bash
-# Easiest: use the gh CLI
 cd /home/bruno/devilishdash
-gh secret set NETLIFY_AUTH_TOKEN     # paste the token when prompted
+gh secret set NETLIFY_AUTH_TOKEN     # paste the personal access token when prompted
 gh secret set NETLIFY_SITE_ID        # paste the API ID when prompted
 ```
 
 Or via the web UI: `https://github.com/omeg4/devilishdash/settings/secrets/actions` → **New repository secret** for each.
 
-### Step 5: Trigger a deploy and verify
-
-Either push a tiny change, or trigger manually:
+#### Step 4: Trigger a deploy and verify
 
 ```bash
 gh workflow run "Deploy site"
@@ -303,65 +289,110 @@ Open the URL. Verify:
 - Nav links work (Home / Projects / Notes / About)
 - Notes listing shows the warehouse-stack post
 - The warehouse-stack page renders with the "MoneyPuck source unavailable" fallback figure
+- Footer "View source" code-tools dropdown links to the GitHub repo
 
-### Step 6: Buy a custom domain
+#### Step 5: (Optional) Rename the Netlify site to something nicer
 
-Recommended candidates: `mattbrunetti.com`, `matthewbrunetti.com`, `mbrunetti.dev`, `brunetti.dev`. Roughly $12/year at any registrar.
+If the auto-generated subdomain is too random:
 
-Suggested registrars (by preference):
+1. Netlify site → **Site configuration** → **General** → **Change site name**
+2. Pick anything `*.netlify.app` that's available (e.g. `omeg4-devilishdash` or `brunetti-hockey`).
+
+This is purely cosmetic but takes 30 seconds. The URL still doesn't cost anything.
+
+#### Step 6: Update README with the live URL
+
+```bash
+cd /home/bruno/devilishdash
+```
+
+Edit `README.md`. Replace:
+```
+Live site: TBD (Netlify URL until custom domain is configured)
+```
+with (substitute your actual Netlify URL):
+```
+Live site: https://<your-site>.netlify.app
+```
+
+Then:
+```bash
+git add README.md
+git commit -m "docs: set Tier 1 Netlify live URL"
+git push
+```
+
+The site auto-redeploys via GitHub Actions. **Tier 1 is now complete.** You can move on to Phase 1.
+
+---
+
+### Tier 2: Custom domain + HTTPS (defer to when Phase 1 ships)
+
+When the Devils injury study is polished and you want to put a URL on a job application, come back and do these steps. They're additive — Tier 1 keeps working through this upgrade with no downtime.
+
+#### Step 1: Buy a domain
+
+Candidates: `mattbrunetti.com`, `matthewbrunetti.com`, `mbrunetti.dev`, `brunetti.dev`. Roughly $12/year.
+
+Suggested registrars (in order of preference):
 - **Cloudflare Registrar** — at-cost pricing, no markup, no upsells. Requires a Cloudflare account.
 - **Porkbun** — cheap, good UX.
 - **Namecheap** — competitive pricing.
 
-Avoid GoDaddy (overpriced, aggressive upsells) unless you already have an account there.
+Avoid GoDaddy (overpriced, aggressive upsells).
 
-### Step 7: Configure DNS in Netlify
+#### Step 2: Add the domain in Netlify
 
-1. Netlify site → **Domain management** → **Add a domain** → enter your purchased domain
+1. Netlify site → **Domain management** → **Add a domain** → enter your purchased domain.
 2. Netlify will show you DNS records to add at your registrar. Typically:
    - **Apex (e.g. `mattbrunetti.com`):** A record → Netlify's load-balancer IP (Netlify gives you the exact IP)
    - **www subdomain:** CNAME → `<your-site>.netlify.app`
-3. Add those records at your registrar's DNS settings page. Propagation usually takes 5–60 minutes.
+3. Add those records at your registrar's DNS page. Propagation usually takes 5–60 minutes.
 
-### Step 8: Enable HTTPS
+#### Step 3: Enable HTTPS
 
-1. Once Netlify verifies DNS, the **Domain management** page shows **HTTPS** → **Verify DNS configuration**
-2. Click **Provision certificate** (uses Let's Encrypt, free, auto-renewing)
-3. Wait ~5 minutes for the cert to issue
-4. Toggle **Force HTTPS** to on
+1. Once Netlify verifies DNS, **Domain management** → **HTTPS** → **Verify DNS configuration**
+2. Click **Provision certificate** (Let's Encrypt, free, auto-renewing).
+3. Wait ~5 minutes for the cert to issue.
+4. Toggle **Force HTTPS** on.
 
-### Step 9: Verify the live site
+#### Step 4: Verify the live site
 
-Open your custom domain in a browser. Confirm:
+Open your custom domain. Confirm:
 - HTTPS lock icon
 - Home / Projects / Notes / About all load
-- Warehouse-stack note renders
 - No 404s on internal links
 
-### Step 10: Update the live URL
+#### Step 5: Update README again with the custom URL
 
-Edit two files:
+```bash
+cd /home/bruno/devilishdash
+```
 
-**`README.md`** — replace:
-```
-Live site: TBD (Netlify URL until custom domain is configured)
-```
-with:
+Edit `README.md`. Replace the Tier 1 Netlify URL with your custom domain:
 ```
 Live site: https://<your-domain>
 ```
 
-**`about.qmd`** — already has your GitHub link. No other identity changes needed.
-
-Then commit and push:
-
 ```bash
 git add README.md
-git commit -m "docs: set live URL"
+git commit -m "docs: set Tier 2 custom domain live URL"
 git push
 ```
 
-The site auto-redeploys via GitHub Actions.
+**Tier 2 complete.** The site is now hiring-manager-ready.
+
+---
+
+### Decision tree if something feels off
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| `gh workflow run` says "no workflow file" | The workflow file isn't on `main` yet | `git push` first |
+| Deploy step fails with "NETLIFY_AUTH_TOKEN not set" | Secrets not added | Redo Tier 1 Step 3 |
+| Deploy succeeds but URL 404s | Wrong publish directory in Netlify | In Netlify: Site configuration → Build & deploy → Publish directory must be `_site` |
+| Chart shows "MoneyPuck source unavailable" | Expected — MoneyPuck URL is broken (see Section 5) | Not a bug, intentional fallback |
+| `make render` fails locally | Quarto not on PATH or venv stale | See Appendix B below |
 
 ---
 
