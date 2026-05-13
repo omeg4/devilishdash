@@ -2,7 +2,7 @@
 
 Public hockey-analytics portfolio: data warehouse, analyses, and Quarto site.
 
-Live site: TBD (Netlify URL until custom domain is configured)
+Live site: https://incredible-lamington-5ecf21.netlify.app
 
 ## Quick start
 
