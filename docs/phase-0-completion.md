@@ -1,8 +1,8 @@
 # Phase 0 — Completion Report & Handoff
 
-> **Status as of 2026-05-12:** Phase 0 code is shipped (T1–T14 complete). Repo is live at https://github.com/omeg4/devilishdash. Local site renders cleanly. All tests pass. T15 (deploy) is split into two tiers — do Tier 1 now (free, ~15 min), defer Tier 2 (custom domain, $12/yr) until Phase 1 ships. T16 (reading list) is on your own time.
+> **Status as of 2026-05-19:** Phase 0 is shipped. T1–T14 complete; T15 Tier 1 complete — site is live at https://mbrunetti.netlify.app and auto-deploys on every push to `main`. T15 Tier 2 (custom domain, ~$12/yr) deliberately deferred until Phase 1 ships. T16 (reading list) is ongoing background work with no deliverable. Phase 1 (Devils injury-recovery study) is unblocked.
 
-This document captures **everything that was actually built** (which differs in a few places from the plan), the **environment state** on this machine, and the **step-by-step actions you need to take for T15 (deployment) and T16 (reading list)**.
+This document captures **everything that was actually built** (which differs in a few places from the plan), the **environment state** on this machine, and the **step-by-step actions taken for T15 (deployment) plus the deferred Tier 2 + T16 reading list**.
 
 For the original design intent see `superpowers/specs/2026-05-07-hockey-analytics-portfolio-design.md`. For the per-task plan see `superpowers/plans/2026-05-07-phase-0-foundation.md`. This file is the *what-we-actually-shipped + what-you-do-next* companion.
 
@@ -223,7 +223,9 @@ The plan's URL `https://peter-tanner.com/moneypuck/downloads/shots_{season}.csv`
 
 ## 6. T15 — Deployment (tiered)
 
-T15 has three viable end-states. The recommended path is **Tier 1 now → Tier 2 when Phase 1 ships**. Read this whole section before picking — the choice is reversible at any time but it's cheaper to know which path you're on.
+> **✅ Tier 1 shipped 2026-05-13.** Live at https://mbrunetti.netlify.app. CI auto-deploys on every push to `main` (verified across 5 consecutive green workflow runs). The Tier 1 steps below are preserved as historical reference — useful if you ever need to recreate the Netlify site, rotate tokens, or set up a second deploy target. Skip to **Tier 2** if/when you want a custom domain.
+
+T15 has three viable end-states. The path actually taken was **Tier 1 now → Tier 2 deferred**. Read this whole section before picking — the choice is reversible at any time but it's cheaper to know which path you're on.
 
 | Tier | What you get | Cost | Time | When |
 |---|---|---|---|---|
@@ -237,11 +239,11 @@ The reasoning: Tier 1 is the load-bearing test of T14's GitHub Actions workflow.
 
 - **Pushed to GitHub** — repo is live at https://github.com/omeg4/devilishdash (public, SSH remote `origin`).
 - **Auth working** — `gh auth status` reports ✓ for `omeg4` with `repo` scope.
-- **Workflow fired automatically** on first push. As expected, it fails at the Netlify deploy step until you complete Tier 1 below.
+- **Tier 1 deploy complete** — Netlify site created, `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` secrets configured, workflow green, site renamed to `mbrunetti.netlify.app`, README updated.
 
 ---
 
-### Tier 1: Free Netlify deploy (do this now, ~15 min)
+### Tier 1: Free Netlify deploy (✅ complete — preserved as reference)
 
 #### Step 1: Netlify signup + connect repo
 
@@ -411,7 +413,7 @@ Non-code. On your own time, before Phase 1 starts. Plan task T16 has the canon �
 
 ## 8. What Phase 1 starts on
 
-Once T15 lands the live site at a real URL and you've done a pass through T16's reading, Phase 1 kicks off the Devils injury-recovery study:
+T15 Tier 1 is shipped; T16 reading is ongoing in parallel. Phase 1 — the Devils injury-recovery study — is unblocked and can begin whenever you're ready:
 
 - ~8–10 weeks of work
 - Lives at `projects/devils-injury-study/index.qmd`

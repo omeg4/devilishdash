@@ -2,7 +2,7 @@
 
 Public hockey-analytics portfolio: data warehouse, analyses, and Quarto site.
 
-Live site: https://incredible-lamington-5ecf21.netlify.app
+Live site: https://mbrunetti.netlify.app
 
 ## Quick start
 
